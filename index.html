@@ -38,6 +38,10 @@
             position: relative;
         }
 
+        .line-entry.single-col {
+            grid-template-columns: 1fr 40px;
+        }
+
         @media (max-width: 768px) {
             .line-entry {
                 grid-template-columns: 1fr;
@@ -82,16 +86,42 @@
             background: rgba(0,0,0,0.5);
             backdrop-filter: blur(4px);
         }
+
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 40px;
+            height: 20px;
+        }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 20px;
+        }
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 14px; width: 14px;
+            left: 3px; bottom: 3px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        input:checked + .slider { background-color: #2563eb; }
+        input:checked + .slider:before { transform: translateX(20px); }
     </style>
 </head>
 <body class="min-h-screen flex flex-col bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 font-sans">
     
-    <!-- Modal Pengaturan -->
+    <!-- Modal Pengaturan & Info -->
     <div id="settingsModal" class="fixed inset-0 z-[100] hidden flex items-center justify-center p-4 modal-backdrop">
-        <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl w-full max-w-md p-6 border border-slate-200 dark:border-slate-800">
+        <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl w-full max-w-lg p-6 border border-slate-200 dark:border-slate-800 overflow-y-auto max-h-[90vh]">
             <h3 id="ui-settingsTitle" class="text-xl font-bold mb-4">Pengaturan</h3>
             
-            <!-- Pilihan Bahasa Sistem -->
             <div class="mb-4">
                 <label id="ui-systemLangLabel" class="text-xs font-bold text-slate-500 uppercase mb-1 block">Bahasa Sistem</label>
                 <select id="systemLangInput" class="w-full bg-slate-100 dark:bg-slate-800 border-none rounded-xl px-4 py-2 text-sm font-semibold outline-none focus:ring-2 focus:ring-blue-500">
@@ -102,15 +132,24 @@
                 </select>
             </div>
 
-            <!-- Kunci Akses -->
             <div class="mb-6">
                 <label id="ui-apiKeyLabel" class="text-xs font-bold text-slate-500 uppercase mb-1 block">Kunci Akses</label>
                 <input type="password" id="apiKeyInput" placeholder="••••••••••••" class="w-full bg-slate-100 dark:bg-slate-800 border-none rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500 outline-none">
-                <p id="ui-apiHint" class="text-[10px] text-slate-400 mt-2 font-medium">Kunci ini bersifat pribadi. Jika kuota habis, tunggu 1-2 menit.</p>
+                <p id="ui-apiHint" class="text-[10px] text-slate-400 mt-2 font-medium">Kunci ini bersifat pribadi untuk fitur terjemahan AI.</p>
+            </div>
+
+            <div class="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-xl mb-6 border border-blue-100 dark:border-blue-800">
+                <h4 id="ui-helpTitle" class="text-sm font-bold text-blue-700 dark:text-blue-400 flex items-center gap-2 mb-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></svg>
+                    Informasi Penting
+                </h4>
+                <p id="ui-helpContent" class="text-xs text-blue-600/80 dark:text-blue-300/80 leading-relaxed">
+                    Fitur terjemahan memiliki batas "Kuota Menit". Jika dosen berbicara sangat cepat, terjemahan mungkin berhenti sejenak. Jika ini terjadi, <strong>matikan sakelar terjemahan</strong> untuk fokus pada teks asli Rusia.
+                </p>
             </div>
 
             <div class="flex gap-2">
-                <button id="ui-saveBtn" onclick="saveSettings()" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl transition-all shadow-lg shadow-blue-500/20">Simpan</button>
+                <button id="ui-saveBtn" onclick="saveSettings()" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl transition-all shadow-lg shadow-blue-500/20">Simpan Pengaturan</button>
                 <button id="ui-cancelBtn" onclick="toggleModal('settingsModal')" class="px-4 py-3 text-slate-500 font-medium text-sm">Batal</button>
             </div>
         </div>
@@ -150,35 +189,45 @@
     <!-- Control Bar -->
     <nav class="bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 p-4 sticky top-[73px] z-40">
         <div class="max-w-6xl mx-auto flex flex-wrap items-center gap-6">
-            <div class="flex flex-col">
-                <label id="ui-targetLangLabel" class="text-[10px] font-bold text-slate-500 uppercase mb-1">Target Bahasa:</label>
-                <select id="targetLang" class="bg-slate-100 dark:bg-slate-800 rounded-lg px-3 py-2 text-sm font-semibold outline-none border-none">
-                    <option value="id">Indonesia</option>
-                    <option value="en">English</option>
-                    <option value="zh">中文</option>
-                </select>
+            
+            <!-- Translation Toggle -->
+            <div class="flex items-center gap-3">
+                <label class="switch">
+                    <input type="checkbox" id="translateToggle" checked>
+                    <span class="slider"></span>
+                </label>
+                <div class="flex flex-col">
+                    <label id="ui-translateToggleLabel" class="text-[10px] font-bold text-slate-500 uppercase">Terjemahan AI</label>
+                    <select id="targetLang" class="bg-transparent text-xs font-bold text-blue-600 outline-none">
+                        <option value="id">Indonesia</option>
+                        <option value="en">English</option>
+                        <option value="zh">中文</option>
+                    </select>
+                </div>
             </div>
+
+            <div class="h-8 w-[1px] bg-slate-200 dark:bg-slate-800 hidden md:block"></div>
 
             <div class="flex flex-col">
                 <label id="ui-fontSizeLabel" class="text-[10px] font-bold text-slate-500 uppercase mb-1">Ukuran Teks:</label>
-                <select id="fontSize" class="bg-slate-100 dark:bg-slate-800 rounded-lg px-3 py-2 text-sm font-semibold outline-none border-none">
+                <select id="fontSize" class="bg-slate-100 dark:bg-slate-800 rounded-lg px-3 py-1 text-xs font-semibold outline-none border-none">
                     <option value="text-base" id="ui-sizeSmall">Kecil</option>
                     <option value="text-xl" id="ui-sizeLarge" selected>Besar</option>
                     <option value="text-3xl" id="ui-sizeExtraLarge">Sangat Besar</option>
                 </select>
             </div>
 
-            <div class="flex items-center gap-2 mt-4 md:mt-0">
+            <div class="flex items-center gap-2">
                 <input type="checkbox" id="autoScroll" checked class="w-4 h-4 rounded text-blue-600">
-                <label for="autoScroll" id="ui-autoScrollLabel" class="text-xs font-bold text-slate-500 uppercase">Auto-Scroll</label>
+                <label for="autoScroll" id="ui-autoScrollLabel" class="text-[10px] font-bold text-slate-500 uppercase">Auto-Scroll</label>
             </div>
 
             <div class="flex items-center gap-2 ml-auto">
-                <button id="startBtn" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-bold shadow-lg shadow-blue-500/30 transition-all active:scale-95">Mulai</button>
-                <button id="stopBtn" class="bg-red-500 hover:bg-red-600 text-white px-6 py-2 rounded-lg font-bold shadow-lg shadow-red-500/30 hidden transition-all active:scale-95">Berhenti</button>
-                <button id="downloadBtn" class="bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 px-6 py-2 rounded-lg font-bold text-slate-700 dark:text-slate-200">Unduh</button>
+                <button id="startBtn" class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-lg text-xs font-bold shadow-lg shadow-blue-500/30 transition-all active:scale-95">Mulai</button>
+                <button id="stopBtn" class="bg-red-500 hover:bg-red-600 text-white px-5 py-2 rounded-lg text-xs font-bold shadow-lg shadow-red-500/30 hidden transition-all active:scale-95">Berhenti</button>
+                <button id="downloadBtn" class="bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 px-5 py-2 rounded-lg text-xs font-bold text-slate-700 dark:text-slate-200">Unduh</button>
                 <button id="clearBtn" class="p-2 text-slate-400 hover:text-red-500" title="Bersihkan">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
                 </button>
             </div>
         </div>
@@ -187,20 +236,19 @@
     <!-- Transcript Area -->
     <main class="flex-grow max-w-6xl w-full mx-auto p-4 md:p-6">
         <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden flex flex-col h-full min-h-[70vh]">
-            <div class="grid grid-cols-2 gap-4 p-4 border-b dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/50 text-[10px] font-bold text-slate-400 uppercase tracking-widest sticky top-0 z-10">
+            <div id="colHeaders" class="grid grid-cols-2 gap-4 p-4 border-b dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/50 text-[10px] font-bold text-slate-400 uppercase tracking-widest sticky top-0 z-10">
                 <div id="ui-colOriginal">Original (RU)</div>
                 <div id="ui-colTranslation">Translation</div>
             </div>
 
-            <div id="transcriptContainer" class="flex-grow p-4 md:p-8 scroll-custom overflow-y-auto max-h-[60vh]">
+            <div id="transcriptContainer" class="flex-grow p-4 md:p-8 scroll-custom overflow-y-auto max-h-[65vh]">
                 <div id="welcomeMessage" class="text-center py-24">
                     <h2 id="ui-welcomeTitle" class="text-2xl font-bold text-slate-800 dark:text-slate-100">Siap Mendengarkan</h2>
-                    <p id="ui-welcomeDesc" class="text-slate-500 dark:text-slate-400 mt-2">Transkrip dan terjemahan otomatis akan muncul di sini baris demi baris.</p>
-                    <p id="apiWarning" class="text-amber-500 font-medium mt-4 italic">Kunci Akses Belum Diatur! Hubungi pengelola.</p>
+                    <p id="ui-welcomeDesc" class="text-slate-500 dark:text-slate-400 mt-2">Transkrip akan muncul di sini baris demi baris.</p>
                 </div>
                 <div id="entriesList"></div>
                 <div id="interimRow" class="mt-6 opacity-60 hidden">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div id="interimGrid" class="grid grid-cols-2 gap-6">
                         <div id="interimRussian" class="italic font-medium text-slate-400"></div>
                         <div></div>
                     </div>
@@ -211,24 +259,21 @@
 
     <div id="toast" class="fixed bottom-8 left-1/2 -translate-x-1/2 bg-slate-800 text-white px-4 py-2 rounded-lg text-sm font-medium shadow-xl opacity-0 transition-opacity pointer-events-none z-[200]">Disalin!</div>
     
-    <div id="errorBox" class="fixed bottom-6 right-6 bg-red-600 text-white px-6 py-4 rounded-xl shadow-2xl transition-all translate-y-20 opacity-0 pointer-events-none max-w-md z-[200]">
-        <p class="font-bold">Error</p>
-        <p id="errorMsg" class="text-sm opacity-90"></p>
-    </div>
-
     <script>
         // --- TRANSLATION DICTIONARY ---
         const translations = {
             id: {
                 appTitle: "Transkrip Kuliah Rusia",
-                settingsTitle: "Pengaturan",
+                settingsTitle: "Pengaturan & Info",
                 systemLangLabel: "Bahasa Sistem",
                 apiKeyLabel: "Kunci Akses",
-                apiHint: "Kunci ini bersifat pribadi. Jika kuota habis, tunggu 1-2 menit.",
-                saveBtn: "Simpan",
+                apiHint: "Kunci ini bersifat pribadi untuk fitur terjemahan AI.",
+                helpTitle: "Informasi Penting",
+                helpContent: "Fitur terjemahan memiliki batas 'Kuota Menit'. Jika dosen berbicara sangat cepat, terjemahan mungkin berhenti sejenak. Jika ini terjadi, matikan sakelar terjemahan untuk fokus pada teks asli Rusia.",
+                saveBtn: "Simpan Pengaturan",
                 cancelBtn: "Batal",
                 liveLabel: "Mendengarkan",
-                targetLangLabel: "Target Bahasa:",
+                translateToggleLabel: "Terjemahan AI",
                 fontSizeLabel: "Ukuran Teks:",
                 sizeSmall: "Kecil",
                 sizeLarge: "Besar",
@@ -238,7 +283,7 @@
                 stopBtn: "Berhenti",
                 downloadBtn: "Unduh",
                 welcomeTitle: "Siap Mendengarkan",
-                welcomeDesc: "Transkrip dan terjemahan otomatis akan muncul di sini baris demi baris.",
+                welcomeDesc: "Transkrip akan muncul di sini baris demi baris.",
                 apiWarning: "Kunci Akses Belum Diatur! Hubungi pengelola.",
                 colOriginal: "Original (RU)",
                 colTranslation: "Terjemahan",
@@ -251,14 +296,16 @@
             },
             en: {
                 appTitle: "Russian Lecture Transcript",
-                settingsTitle: "Settings",
+                settingsTitle: "Settings & Info",
                 systemLangLabel: "System Language",
                 apiKeyLabel: "Access Key",
-                apiHint: "Keys are private. If quota fails, wait 1-2 mins.",
-                saveBtn: "Save",
+                apiHint: "Keys are private for AI translation features.",
+                helpTitle: "Important Info",
+                helpContent: "The translation feature has a 'Minute Quota'. If the lecturer speaks very fast, translation might pause. If this happens, turn off the translation toggle to focus on the original Russian text.",
+                saveBtn: "Save Settings",
                 cancelBtn: "Cancel",
                 liveLabel: "Live Listening",
-                targetLangLabel: "Target Language:",
+                translateToggleLabel: "AI Translation",
                 fontSizeLabel: "Text Size:",
                 sizeSmall: "Small",
                 sizeLarge: "Large",
@@ -268,7 +315,7 @@
                 stopBtn: "Stop",
                 downloadBtn: "Download",
                 welcomeTitle: "Ready to Listen",
-                welcomeDesc: "Automatic transcripts and translations will appear here line by line.",
+                welcomeDesc: "Transcripts will appear here line by line.",
                 apiWarning: "Access Key Not Set! Contact admin.",
                 colOriginal: "Original (RU)",
                 colTranslation: "Translation",
@@ -281,14 +328,16 @@
             },
             ru: {
                 appTitle: "Транскрипт Лекции (RU)",
-                settingsTitle: "Настройки",
+                settingsTitle: "Настройки и Инфо",
                 systemLangLabel: "Язык Системы",
                 apiKeyLabel: "Ключ доступа",
-                apiHint: "Ключи приватны. Если лимит исчерпан, подождите 1-2 мин.",
+                apiHint: "Ключи приватны для функций перевода AI.",
+                helpTitle: "Важная информация",
+                helpContent: "Функция перевода имеет 'Минутный лимит'. Если преподаватель говорит очень быстро, перевод может приостановиться. Если это произойдет, выключите переключатель перевода, чтобы сосредоточиться на оригинальном русском тексте.",
                 saveBtn: "Сохранить",
                 cancelBtn: "Отмена",
                 liveLabel: "Слушаем",
-                targetLangLabel: "Язык перевода:",
+                translateToggleLabel: "AI Перевод",
                 fontSizeLabel: "Размер текста:",
                 sizeSmall: "Маленький",
                 sizeLarge: "Большой",
@@ -298,7 +347,7 @@
                 stopBtn: "Стоп",
                 downloadBtn: "Скачать",
                 welcomeTitle: "Готов к прослушиванию",
-                welcomeDesc: "Автоматические транскрипты и переводы будут появляться здесь строка за строкой.",
+                welcomeDesc: "Транскрипты будут появляться здесь строка за строкой.",
                 apiWarning: "Ключ доступа не установлен! Свяжитесь с админом.",
                 colOriginal: "Оригинал (RU)",
                 colTranslation: "Перевод",
@@ -311,14 +360,16 @@
             },
             zh: {
                 appTitle: "俄语讲座转录 Pro",
-                settingsTitle: "设置",
+                settingsTitle: "设置与信息",
                 systemLangLabel: "系统语言",
                 apiKeyLabel: "访问密钥",
-                apiHint: "密钥是私有的。如果配额失败，请等待1-2分钟。",
-                saveBtn: "保存",
+                apiHint: "密钥是私有的，用于人工智能翻译功能。",
+                helpTitle: "重要信息",
+                helpContent: "翻译功能有“分钟配额”。如果讲师讲得非常快，翻译可能会暂停。如果发生这种情况，请关闭翻译开关以专注于原始俄语文本。",
+                saveBtn: "保存设置",
                 cancelBtn: "取消",
                 liveLabel: "正在收听",
-                targetLangLabel: "目标语言：",
+                translateToggleLabel: "AI 翻译",
                 fontSizeLabel: "字体大小：",
                 sizeSmall: "小",
                 sizeLarge: "大",
@@ -328,7 +379,7 @@
                 stopBtn: "停止",
                 downloadBtn: "下载",
                 welcomeTitle: "准备就绪",
-                welcomeDesc: "自动转录和翻译将逐行显示在这里。",
+                welcomeDesc: "转录将逐行显示在这里。",
                 apiWarning: "访问密钥未设置！请联系管理员。",
                 colOriginal: "原文 (俄语)",
                 colTranslation: "翻译",
@@ -349,6 +400,9 @@
         const settingsModal = document.getElementById('settingsModal');
         const apiKeyInput = document.getElementById('apiKeyInput');
         const systemLangInput = document.getElementById('systemLangInput');
+        const translateToggle = document.getElementById('translateToggle');
+        const colHeaders = document.getElementById('colHeaders');
+        const interimGrid = document.getElementById('interimGrid');
 
         // --- UI UPDATE LOGIC ---
         function updateUI() {
@@ -358,10 +412,12 @@
             document.getElementById('ui-systemLangLabel').innerText = t.systemLangLabel;
             document.getElementById('ui-apiKeyLabel').innerText = t.apiKeyLabel;
             document.getElementById('ui-apiHint').innerText = t.apiHint;
+            document.getElementById('ui-helpTitle').innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></svg>${t.helpTitle}`;
+            document.getElementById('ui-helpContent').innerText = t.helpContent;
             document.getElementById('ui-saveBtn').innerText = t.saveBtn;
             document.getElementById('ui-cancelBtn').innerText = t.cancelBtn;
             document.getElementById('ui-liveLabel').innerText = t.liveLabel;
-            document.getElementById('ui-targetLangLabel').innerText = t.targetLangLabel;
+            document.getElementById('ui-translateToggleLabel').innerText = t.translateToggleLabel;
             document.getElementById('ui-fontSizeLabel').innerText = t.fontSizeLabel;
             document.getElementById('ui-sizeSmall').innerText = t.sizeSmall;
             document.getElementById('ui-sizeLarge').innerText = t.sizeLarge;
@@ -374,15 +430,32 @@
             document.getElementById('ui-welcomeDesc').innerText = t.welcomeDesc;
             document.getElementById('ui-colOriginal').innerText = t.colOriginal;
             document.getElementById('ui-colTranslation').innerText = t.colTranslation;
-            document.getElementById('apiWarning').innerText = t.apiWarning;
             document.getElementById('toast').innerText = t.toastCopy;
 
-            if (activeApiKey) {
-                document.getElementById('apiWarning').classList.add('hidden');
+            updateLayout();
+        }
+
+        function updateLayout() {
+            if (translateToggle.checked) {
+                colHeaders.classList.replace('grid-cols-1', 'grid-cols-2');
+                colHeaders.querySelector('#ui-colTranslation').classList.remove('hidden');
+                interimGrid.classList.replace('grid-cols-1', 'grid-cols-2');
+                interimGrid.children[1].classList.remove('hidden');
             } else {
-                document.getElementById('apiWarning').classList.remove('hidden');
+                colHeaders.classList.replace('grid-cols-2', 'grid-cols-1');
+                colHeaders.querySelector('#ui-colTranslation').classList.add('hidden');
+                interimGrid.classList.replace('grid-cols-2', 'grid-cols-1');
+                interimGrid.children[1].classList.add('hidden');
             }
         }
+
+        // Pengecekan otomatis saat toggle diubah
+        translateToggle.onchange = () => {
+            updateLayout();
+            if (translateToggle.checked && !activeApiKey) {
+                toggleModal('settingsModal');
+            }
+        };
 
         function toggleModal(id) {
             const modal = document.getElementById(id);
@@ -396,13 +469,10 @@
         function saveSettings() {
             const key = apiKeyInput.value.trim();
             const lang = systemLangInput.value;
-            
             localStorage.setItem('gemini_api_key', key);
             localStorage.setItem('system_lang', lang);
-            
             activeApiKey = key;
             currentSystemLang = lang;
-            
             updateUI();
             toggleModal('settingsModal');
         }
@@ -464,33 +534,44 @@
             if (!ru) return;
             const t = translations[currentSystemLang];
             const entryDiv = document.createElement('div');
-            entryDiv.className = `line-entry ${fontSize.value}`;
+            const isTranslate = translateToggle.checked;
+            
+            entryDiv.className = `line-entry ${fontSize.value} ${!isTranslate ? 'single-col' : ''}`;
+            
+            let translationHTML = '';
+            if (isTranslate && activeApiKey) {
+                translationHTML = `<div class="translation text-slate-400 italic flex items-center gap-2"><span class="loading-translate"></span> ${t.translating}</div>`;
+            }
+
             entryDiv.innerHTML = `
                 <div class="font-semibold text-slate-800 dark:text-slate-200">${ru}</div>
-                <div class="translation text-slate-400 italic flex items-center gap-2">
-                    <span class="loading-translate"></span> ${t.translating}
+                ${translationHTML}
+                <div class="flex justify-end">
+                    <button onclick="copyLine('${ru}')" class="p-1 hover:bg-slate-100 dark:hover:bg-slate-800 rounded">
+                         <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
+                    </button>
                 </div>
             `;
             entriesList.appendChild(entryDiv);
 
-            if (!activeApiKey) {
-                entryDiv.querySelector('.translation').innerHTML = `<span class='text-amber-500'>${t.errNoApi}</span>`;
-                return;
-            }
-
-            try {
-                const targetCode = document.getElementById('targetLang').value;
-                const targetLabel = { 'id': 'Indonesian', 'en': 'English', 'zh': 'Chinese (Simplified)' }[targetCode];
-                const tr = await translateAI(ru, targetLabel);
-                const el = entryDiv.querySelector('.translation');
-                el.classList.replace('text-slate-400', 'text-blue-600');
-                el.classList.remove('italic');
-                el.innerText = tr;
-                fullTranscript.push({ ru, tr, target: targetLabel });
-            } catch (e) {
-                const el = entryDiv.querySelector('.translation');
-                el.classList.replace('text-slate-400', 'text-red-500');
-                el.innerText = e.message || t.errGeneric;
+            if (isTranslate && activeApiKey) {
+                try {
+                    const targetCode = document.getElementById('targetLang').value;
+                    const targetLabel = { 'id': 'Indonesian', 'en': 'English', 'zh': 'Chinese (Simplified)' }[targetCode];
+                    const tr = await translateAI(ru, targetLabel);
+                    const el = entryDiv.querySelector('.translation');
+                    el.classList.replace('text-slate-400', 'text-blue-600');
+                    el.classList.remove('italic');
+                    el.innerText = tr;
+                    fullTranscript.push({ ru, tr, target: targetLabel });
+                } catch (e) {
+                    const el = entryDiv.querySelector('.translation');
+                    el.classList.replace('text-slate-400', 'text-red-500');
+                    el.innerText = e.message || t.errGeneric;
+                    fullTranscript.push({ ru, tr: "[Error]", target: "-" });
+                }
+            } else {
+                fullTranscript.push({ ru, tr: null, target: "-" });
             }
         }
 
@@ -512,7 +593,6 @@
                 const d = await res.json();
                 return d.candidates[0].content.parts[0].text.trim();
             } catch (e) {
-                // Jika terkena batas kuota (429), coba lagi 3 kali dengan jeda 2 detik
                 if (retryCount < 3 && e.message.includes('429')) {
                     await new Promise(r => setTimeout(r, 2000));
                     return translateAI(text, target, retryCount + 1);
@@ -521,19 +601,43 @@
             }
         }
 
+        window.copyLine = (text) => {
+            const buf = document.createElement('textarea');
+            buf.value = text;
+            document.body.appendChild(buf);
+            buf.select();
+            document.execCommand('copy');
+            document.body.removeChild(buf);
+            const toast = document.getElementById('toast');
+            toast.classList.replace('opacity-0', 'opacity-100');
+            setTimeout(() => toast.classList.replace('opacity-100', 'opacity-0'), 2000);
+        };
+
         startBtn.onclick = () => {
-            if (!activeApiKey) {
+            // Cek kunci hanya jika terjemahan AI aktif
+            if (translateToggle.checked && !activeApiKey) {
                 toggleModal('settingsModal');
                 return;
             }
             recognition.start();
         }
         stopBtn.onclick = () => recognition.stop();
-        clearBtn.onclick = () => { entriesList.innerHTML = ''; fullTranscript = []; };
+        clearBtn.onclick = () => { 
+            entriesList.innerHTML = ''; 
+            fullTranscript = []; 
+            document.getElementById('welcomeMessage').classList.remove('hidden'); 
+        };
+        
         downloadBtn.onclick = () => {
             if (fullTranscript.length === 0) return;
-            let out = "TRANSCRIPT\n\n";
-            fullTranscript.forEach(t => out += `RU: ${t.ru}\n${t.target}: ${t.tr}\n\n`);
+            let out = "TRANSKRIP KULIAH RUSIA PRO\n";
+            out += `Tanggal: ${new Date().toLocaleString()}\n`;
+            out += "=".repeat(30) + "\n\n";
+            fullTranscript.forEach((t, i) => {
+                out += `[${i+1}] RU: ${t.ru}\n`;
+                if(t.tr) out += `    TRANS: ${t.tr}\n`;
+                out += "\n";
+            });
             const b = new Blob([out], { type: 'text/plain' });
             const a = document.createElement('a');
             a.href = URL.createObjectURL(b);
@@ -547,6 +651,36 @@
                 el.classList.add(e.target.value);
             });
         };
+
+        // --- VISUALIZER ---
+        const visualizerCanvas = document.getElementById('visualizer');
+        let audioCtx, analyser, dataArray, source;
+        async function setupVisualizer() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                analyser = audioCtx.createAnalyser();
+                source = audioCtx.createMediaStreamSource(stream);
+                source.connect(analyser);
+                analyser.fftSize = 32;
+                dataArray = new Uint8Array(analyser.frequencyBinCount);
+                draw();
+            } catch (e) {}
+        }
+        function draw() {
+            requestAnimationFrame(draw);
+            const ctx = visualizerCanvas.getContext('2d');
+            analyser.getByteFrequencyData(dataArray);
+            ctx.clearRect(0, 0, visualizerCanvas.width, visualizerCanvas.height);
+            let x = 0;
+            for(let i = 0; i < dataArray.length; i++) {
+                const h = (dataArray[i]/255) * visualizerCanvas.height;
+                ctx.fillStyle = '#3b82f6';
+                ctx.fillRect(x, visualizerCanvas.height - h, 4, h);
+                x += 6;
+            }
+        }
+        window.onclick = () => { if(!audioCtx) setupVisualizer(); };
 
         // --- INITIALIZE ---
         updateUI();
