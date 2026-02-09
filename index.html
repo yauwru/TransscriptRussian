@@ -86,17 +86,36 @@
 </head>
 <body class="min-h-screen flex flex-col bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 font-sans">
     
-    <!-- Modal Pengaturan API -->
-    <div id="apiModal" class="fixed inset-0 z-[100] hidden flex items-center justify-center p-4 modal-backdrop">
+    <!-- Modal Pengaturan -->
+    <div id="settingsModal" class="fixed inset-0 z-[100] hidden flex items-center justify-center p-4 modal-backdrop">
         <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl w-full max-w-md p-6 border border-slate-200 dark:border-slate-800">
-            <h3 class="text-xl font-bold mb-2">Pengaturan API Key</h3>
-            <p class="text-sm text-slate-500 mb-4">Masukkan Google Gemini API Key Anda. Kunci ini hanya disimpan di browser Anda (lokal) dan tidak dikirim ke server mana pun.</p>
-            <input type="password" id="apiKeyInput" placeholder="Masukkan AIzaSy..." class="w-full bg-slate-100 dark:bg-slate-800 border-none rounded-xl px-4 py-3 mb-4 focus:ring-2 focus:ring-blue-500 outline-none">
-            <div class="flex gap-2">
-                <button onclick="saveApiKey()" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl transition-all">Simpan</button>
-                <button onclick="toggleModal('apiModal')" class="px-4 py-3 text-slate-500 font-medium">Batal</button>
+            <h3 id="ui-settingsTitle" class="text-xl font-bold mb-4">Pengaturan</h3>
+            
+            <!-- Pilihan Bahasa Sistem -->
+            <div class="mb-4">
+                <label id="ui-systemLangLabel" class="text-xs font-bold text-slate-500 uppercase mb-1 block">Bahasa Sistem</label>
+                <select id="systemLangInput" class="w-full bg-slate-100 dark:bg-slate-800 border-none rounded-xl px-4 py-2 text-sm font-semibold outline-none focus:ring-2 focus:ring-blue-500">
+                    <option value="id">Indonesia</option>
+                    <option value="en">English</option>
+                    <option value="ru">Русский</option>
+                    <option value="zh">中文</option>
+                </select>
             </div>
-            <p class="text-[10px] mt-4 text-center text-slate-400">Dapatkan kunci gratis di <a href="https://aistudio.google.com/" target="_blank" class="underline text-blue-500">Google AI Studio</a></p>
+
+            <!-- API Key -->
+            <div class="mb-6">
+                <label id="ui-apiKeyLabel" class="text-xs font-bold text-slate-500 uppercase mb-1 block">Google Gemini API Key</label>
+                <input type="password" id="apiKeyInput" placeholder="AIzaSy..." class="w-full bg-slate-100 dark:bg-slate-800 border-none rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500 outline-none">
+                <p id="ui-apiHint" class="text-[10px] text-slate-400 mt-2">Kunci disimpan secara lokal di browser Anda.</p>
+            </div>
+
+            <div class="flex gap-2">
+                <button id="ui-saveBtn" onclick="saveSettings()" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl transition-all shadow-lg shadow-blue-500/20">Simpan</button>
+                <button id="ui-cancelBtn" onclick="toggleModal('settingsModal')" class="px-4 py-3 text-slate-500 font-medium">Batal</button>
+            </div>
+            <p class="text-[10px] mt-4 text-center text-slate-400">
+                <a href="https://aistudio.google.com/" target="_blank" class="underline text-blue-500">Google AI Studio</a>
+            </p>
         </div>
     </div>
 
@@ -104,11 +123,11 @@
     <header class="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 p-4 shadow-sm sticky top-0 z-50">
         <div class="max-w-6xl mx-auto flex flex-wrap justify-between items-center gap-4">
             <div class="flex items-center gap-3">
-                <div class="bg-blue-600 p-2 rounded-xl text-white">
+                <div class="bg-blue-600 p-2 rounded-xl text-white shadow-lg shadow-blue-500/20">
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" x2="12" y1="19" y2="22"/></svg>
                 </div>
                 <div>
-                    <h1 class="text-xl font-bold leading-tight">Transkrip Kuliah Rusia</h1>
+                    <h1 id="ui-appTitle" class="text-xl font-bold leading-tight">Transkrip Kuliah Rusia</h1>
                     <div class="flex items-center gap-2">
                         <canvas id="visualizer"></canvas>
                     </div>
@@ -116,7 +135,7 @@
             </div>
 
             <div class="flex items-center gap-2">
-                <button onclick="toggleModal('apiModal')" class="p-2 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 text-slate-600 dark:text-slate-300" title="Set API Key">
+                <button onclick="toggleModal('settingsModal')" class="p-2 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 text-slate-600 dark:text-slate-300 transition-all" title="Pengaturan">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
                 </button>
                 <button id="themeToggle" class="p-2 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 transition-colors">
@@ -125,54 +144,62 @@
                 </button>
                 <div id="statusBadge" class="hidden items-center bg-blue-50 dark:bg-blue-900/20 px-3 py-1.5 rounded-full border border-blue-200 dark:border-blue-800">
                     <span class="listening-dot mr-2"></span>
-                    <span class="text-[10px] font-bold tracking-wider uppercase text-blue-600 dark:text-blue-400">Live</span>
+                    <span id="ui-liveLabel" class="text-[10px] font-bold tracking-wider uppercase text-blue-600 dark:text-blue-400">Live</span>
                 </div>
             </div>
         </div>
     </header>
 
-    <!-- Bar Kontrol -->
+    <!-- Control Bar -->
     <nav class="bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 p-4 sticky top-[73px] z-40">
         <div class="max-w-6xl mx-auto flex flex-wrap items-center gap-6">
             <div class="flex flex-col">
-                <label class="text-[10px] font-bold text-slate-500 uppercase mb-1">Target Bahasa:</label>
+                <label id="ui-targetLangLabel" class="text-[10px] font-bold text-slate-500 uppercase mb-1">Target Bahasa:</label>
                 <select id="targetLang" class="bg-slate-100 dark:bg-slate-800 rounded-lg px-3 py-2 text-sm font-semibold outline-none border-none">
                     <option value="id">Indonesia</option>
-                    <option value="en">Inggris</option>
-                    <option value="zh">Mandarin</option>
+                    <option value="en">English</option>
+                    <option value="zh">中文</option>
                 </select>
             </div>
 
             <div class="flex flex-col">
-                <label class="text-[10px] font-bold text-slate-500 uppercase mb-1">Ukuran Teks:</label>
+                <label id="ui-fontSizeLabel" class="text-[10px] font-bold text-slate-500 uppercase mb-1">Ukuran Teks:</label>
                 <select id="fontSize" class="bg-slate-100 dark:bg-slate-800 rounded-lg px-3 py-2 text-sm font-semibold outline-none border-none">
-                    <option value="text-base">Kecil</option>
-                    <option value="text-xl" selected>Besar</option>
-                    <option value="text-3xl">Sangat Besar</option>
+                    <option value="text-base" id="ui-sizeSmall">Kecil</option>
+                    <option value="text-xl" id="ui-sizeLarge" selected>Besar</option>
+                    <option value="text-3xl" id="ui-sizeExtraLarge">Sangat Besar</option>
                 </select>
             </div>
 
             <div class="flex items-center gap-2 mt-4 md:mt-0">
                 <input type="checkbox" id="autoScroll" checked class="w-4 h-4 rounded text-blue-600">
-                <label for="autoScroll" class="text-xs font-bold text-slate-500 uppercase">Auto-Scroll</label>
+                <label for="autoScroll" id="ui-autoScrollLabel" class="text-xs font-bold text-slate-500 uppercase">Auto-Scroll</label>
             </div>
 
             <div class="flex items-center gap-2 ml-auto">
-                <button id="startBtn" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-bold shadow-lg shadow-blue-500/30">Mulai</button>
-                <button id="stopBtn" class="bg-red-500 hover:bg-red-600 text-white px-6 py-2 rounded-lg font-bold shadow-lg shadow-red-500/30 hidden">Berhenti</button>
-                <button id="downloadBtn" class="bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 px-6 py-2 rounded-lg font-bold">Unduh</button>
-                <button id="clearBtn" class="p-2 text-slate-400 hover:text-red-500"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg></button>
+                <button id="startBtn" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-bold shadow-lg shadow-blue-500/30 transition-all active:scale-95">Mulai</button>
+                <button id="stopBtn" class="bg-red-500 hover:bg-red-600 text-white px-6 py-2 rounded-lg font-bold shadow-lg shadow-red-500/30 hidden transition-all active:scale-95">Berhenti</button>
+                <button id="downloadBtn" class="bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 px-6 py-2 rounded-lg font-bold text-slate-700 dark:text-slate-200">Unduh</button>
+                <button id="clearBtn" class="p-2 text-slate-400 hover:text-red-500" title="Bersihkan">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
+                </button>
             </div>
         </div>
     </nav>
 
-    <!-- Area Transkrip -->
+    <!-- Transcript Area -->
     <main class="flex-grow max-w-6xl w-full mx-auto p-4 md:p-6">
         <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden flex flex-col h-full min-h-[70vh]">
+            <div class="grid grid-cols-2 gap-4 p-4 border-b dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/50 text-[10px] font-bold text-slate-400 uppercase tracking-widest sticky top-0 z-10">
+                <div id="ui-colOriginal">Original (RU)</div>
+                <div id="ui-colTranslation">Translation</div>
+            </div>
+
             <div id="transcriptContainer" class="flex-grow p-4 md:p-8 scroll-custom overflow-y-auto max-h-[60vh]">
                 <div id="welcomeMessage" class="text-center py-24">
-                    <h2 class="text-2xl font-bold text-slate-800 dark:text-slate-100">Siap Mendengarkan</h2>
-                    <p id="apiWarning" class="text-amber-500 font-medium mt-2">API Key Belum Diatur! Klik ikon gerigi di pojok kanan atas.</p>
+                    <h2 id="ui-welcomeTitle" class="text-2xl font-bold text-slate-800 dark:text-slate-100">Siap Mendengarkan</h2>
+                    <p id="ui-welcomeDesc" class="text-slate-500 dark:text-slate-400 mt-2">Transkrip dan terjemahan otomatis akan muncul di sini baris demi baris.</p>
+                    <p id="apiWarning" class="text-amber-500 font-medium mt-4">API Key Belum Diatur! Klik ikon gerigi di pojok kanan atas.</p>
                 </div>
                 <div id="entriesList"></div>
                 <div id="interimRow" class="mt-6 opacity-60 hidden">
@@ -185,41 +212,193 @@
         </div>
     </main>
 
-    <div id="toast" class="fixed bottom-8 left-1/2 -translate-x-1/2 bg-slate-800 text-white px-4 py-2 rounded-lg text-sm font-medium shadow-xl opacity-0 transition-opacity pointer-events-none">Disalin!</div>
-    <div id="errorBox" class="fixed bottom-6 right-6 bg-red-600 text-white px-6 py-4 rounded-xl shadow-2xl transition-all translate-y-20 opacity-0 pointer-events-none max-w-md">
+    <div id="toast" class="fixed bottom-8 left-1/2 -translate-x-1/2 bg-slate-800 text-white px-4 py-2 rounded-lg text-sm font-medium shadow-xl opacity-0 transition-opacity pointer-events-none z-[200]">Disalin!</div>
+    
+    <div id="errorBox" class="fixed bottom-6 right-6 bg-red-600 text-white px-6 py-4 rounded-xl shadow-2xl transition-all translate-y-20 opacity-0 pointer-events-none max-w-md z-[200]">
         <p class="font-bold">Error</p>
         <p id="errorMsg" class="text-sm opacity-90"></p>
     </div>
 
     <script>
-        // API Key sekarang diambil dari localStorage
+        // --- TRANSLATION DICTIONARY ---
+        const translations = {
+            id: {
+                appTitle: "Transkrip Kuliah Rusia",
+                settingsTitle: "Pengaturan",
+                systemLangLabel: "Bahasa Sistem",
+                apiKeyLabel: "Google Gemini API Key",
+                apiHint: "Kunci disimpan secara lokal di browser Anda.",
+                saveBtn: "Simpan",
+                cancelBtn: "Batal",
+                liveLabel: "Mendengarkan",
+                targetLangLabel: "Target Bahasa:",
+                fontSizeLabel: "Ukuran Teks:",
+                sizeSmall: "Kecil",
+                sizeLarge: "Besar",
+                sizeExtraLarge: "Sangat Besar",
+                autoScrollLabel: "Auto-Scroll",
+                startBtn: "Mulai",
+                stopBtn: "Berhenti",
+                downloadBtn: "Unduh",
+                welcomeTitle: "Siap Mendengarkan",
+                welcomeDesc: "Transkrip dan terjemahan otomatis akan muncul di sini baris demi baris.",
+                apiWarning: "API Key Belum Diatur! Klik ikon gerigi di pojok kanan atas.",
+                colOriginal: "Original (RU)",
+                colTranslation: "Terjemahan",
+                toastCopy: "Disalin!",
+                translating: "Menerjemahkan...",
+                errNoApi: "API Key belum diisi. Terjemahan tidak akan berfungsi."
+            },
+            en: {
+                appTitle: "Russian Lecture Transcript",
+                settingsTitle: "Settings",
+                systemLangLabel: "System Language",
+                apiKeyLabel: "Google Gemini API Key",
+                apiHint: "Keys are stored locally in your browser.",
+                saveBtn: "Save",
+                cancelBtn: "Cancel",
+                liveLabel: "Live Listening",
+                targetLangLabel: "Target Language:",
+                fontSizeLabel: "Text Size:",
+                sizeSmall: "Small",
+                sizeLarge: "Large",
+                sizeExtraLarge: "Extra Large",
+                autoScrollLabel: "Auto-Scroll",
+                startBtn: "Start",
+                stopBtn: "Stop",
+                downloadBtn: "Download",
+                welcomeTitle: "Ready to Listen",
+                welcomeDesc: "Automatic transcripts and translations will appear here line by line.",
+                apiWarning: "API Key Not Set! Click the gear icon at the top right.",
+                colOriginal: "Original (RU)",
+                colTranslation: "Translation",
+                toastCopy: "Copied!",
+                translating: "Translating...",
+                errNoApi: "API Key not set. Translation will not work."
+            },
+            ru: {
+                appTitle: "Транскрипт Лекции (RU)",
+                settingsTitle: "Настройки",
+                systemLangLabel: "Язык Системы",
+                apiKeyLabel: "Google Gemini API Key",
+                apiHint: "Ключи сохраняются локально в вашем браузере.",
+                saveBtn: "Сохранить",
+                cancelBtn: "Отмена",
+                liveLabel: "Слушаем",
+                targetLangLabel: "Язык перевода:",
+                fontSizeLabel: "Размер текста:",
+                sizeSmall: "Маленький",
+                sizeLarge: "Большой",
+                sizeExtraLarge: "Очень большой",
+                autoScrollLabel: "Автопрокрутка",
+                startBtn: "Начать",
+                stopBtn: "Стоп",
+                downloadBtn: "Скачать",
+                welcomeTitle: "Готов к прослушиванию",
+                welcomeDesc: "Автоматические транскрипты и переводы будут появляться здесь строка за строкой.",
+                apiWarning: "API-ключ не установлен! Нажмите на иконку шестеренки.",
+                colOriginal: "Оригинал (RU)",
+                colTranslation: "Перевод",
+                toastCopy: "Скопировано!",
+                translating: "Перевод...",
+                errNoApi: "API-ключ не установлен. Перевод не будет работать."
+            },
+            zh: {
+                appTitle: "俄语讲座转录 Pro",
+                settingsTitle: "设置",
+                systemLangLabel: "系统语言",
+                apiKeyLabel: "Google Gemini API Key",
+                apiHint: "密钥存储在您的浏览器本地。",
+                saveBtn: "保存",
+                cancelBtn: "取消",
+                liveLabel: "正在收听",
+                targetLangLabel: "目标语言：",
+                fontSizeLabel: "字体大小：",
+                sizeSmall: "小",
+                sizeLarge: "大",
+                sizeExtraLarge: "超大",
+                autoScrollLabel: "自动滚动",
+                startBtn: "开始",
+                stopBtn: "停止",
+                downloadBtn: "下载",
+                welcomeTitle: "准备就绪",
+                welcomeDesc: "自动转录和翻译将逐行显示在这里。",
+                apiWarning: "尚未设置 API 密钥！点击右上角的齿轮图标。",
+                colOriginal: "原文 (俄语)",
+                colTranslation: "翻译",
+                toastCopy: "已复制！",
+                translating: "正在翻译...",
+                errNoApi: "尚未设置 API 密钥。翻译功能将无法使用。"
+            }
+        };
+
+        // --- STATE MANAGEMENT ---
         let activeApiKey = localStorage.getItem('gemini_api_key') || "";
+        let currentSystemLang = localStorage.getItem('system_lang') || "id";
         const model = "gemini-2.5-flash-preview-09-2025";
 
-        const apiModal = document.getElementById('apiModal');
+        const settingsModal = document.getElementById('settingsModal');
         const apiKeyInput = document.getElementById('apiKeyInput');
-        const apiWarning = document.getElementById('apiWarning');
+        const systemLangInput = document.getElementById('systemLangInput');
 
-        // Fungsi Modal
-        function toggleModal(id) {
-            const modal = document.getElementById(id);
-            modal.classList.toggle('hidden');
-            if (!modal.classList.contains('hidden')) apiKeyInput.value = activeApiKey;
-        }
+        // --- UI UPDATE LOGIC ---
+        function updateUI() {
+            const t = translations[currentSystemLang];
+            document.getElementById('ui-appTitle').innerText = t.appTitle;
+            document.getElementById('ui-settingsTitle').innerText = t.settingsTitle;
+            document.getElementById('ui-systemLangLabel').innerText = t.systemLangLabel;
+            document.getElementById('ui-apiKeyLabel').innerText = t.apiKeyLabel;
+            document.getElementById('ui-apiHint').innerText = t.apiHint;
+            document.getElementById('ui-saveBtn').innerText = t.saveBtn;
+            document.getElementById('ui-cancelBtn').innerText = t.cancelBtn;
+            document.getElementById('ui-liveLabel').innerText = t.liveLabel;
+            document.getElementById('ui-targetLangLabel').innerText = t.targetLangLabel;
+            document.getElementById('ui-fontSizeLabel').innerText = t.fontSizeLabel;
+            document.getElementById('ui-sizeSmall').innerText = t.sizeSmall;
+            document.getElementById('ui-sizeLarge').innerText = t.sizeLarge;
+            document.getElementById('ui-sizeExtraLarge').innerText = t.sizeExtraLarge;
+            document.getElementById('ui-autoScrollLabel').innerText = t.autoScrollLabel;
+            document.getElementById('startBtn').innerText = t.startBtn;
+            document.getElementById('stopBtn').innerText = t.stopBtn;
+            document.getElementById('downloadBtn').innerText = t.downloadBtn;
+            document.getElementById('ui-welcomeTitle').innerText = t.welcomeTitle;
+            document.getElementById('ui-welcomeDesc').innerText = t.welcomeDesc;
+            document.getElementById('ui-colOriginal').innerText = t.colOriginal;
+            document.getElementById('ui-colTranslation').innerText = t.colTranslation;
+            document.getElementById('apiWarning').innerText = t.apiWarning;
+            document.getElementById('toast').innerText = t.toastCopy;
 
-        function saveApiKey() {
-            const key = apiKeyInput.value.trim();
-            if (key) {
-                localStorage.setItem('gemini_api_key', key);
-                activeApiKey = key;
-                apiWarning.classList.add('hidden');
-                toggleModal('apiModal');
+            if (activeApiKey) {
+                document.getElementById('apiWarning').classList.add('hidden');
+            } else {
+                document.getElementById('apiWarning').classList.remove('hidden');
             }
         }
 
-        if (activeApiKey) apiWarning.classList.add('hidden');
+        function toggleModal(id) {
+            const modal = document.getElementById(id);
+            modal.classList.toggle('hidden');
+            if (!modal.classList.contains('hidden')) {
+                apiKeyInput.value = activeApiKey;
+                systemLangInput.value = currentSystemLang;
+            }
+        }
 
-        // Speech & Logic (sama seperti sebelumnya tapi menggunakan activeApiKey)
+        function saveSettings() {
+            const key = apiKeyInput.value.trim();
+            const lang = systemLangInput.value;
+            
+            localStorage.setItem('gemini_api_key', key);
+            localStorage.setItem('system_lang', lang);
+            
+            activeApiKey = key;
+            currentSystemLang = lang;
+            
+            updateUI();
+            toggleModal('settingsModal');
+        }
+
+        // --- CORE LOGIC ---
         const startBtn = document.getElementById('startBtn');
         const stopBtn = document.getElementById('stopBtn');
         const clearBtn = document.getElementById('clearBtn');
@@ -247,7 +426,7 @@
             recognition.onstart = () => {
                 startBtn.classList.add('hidden');
                 stopBtn.classList.remove('hidden');
-                document.getElementById('statusBadge').classList.remove('hidden');
+                document.getElementById('statusBadge').classList.replace('hidden', 'flex');
                 document.getElementById('welcomeMessage').classList.add('hidden');
                 interimRow.classList.remove('hidden');
             };
@@ -268,35 +447,39 @@
             recognition.onend = () => {
                 startBtn.classList.remove('hidden');
                 stopBtn.classList.add('hidden');
-                document.getElementById('statusBadge').classList.add('hidden');
+                document.getElementById('statusBadge').classList.replace('flex', 'hidden');
             };
         }
 
         async function handleFinal(ru) {
             if (!ru) return;
+            const t = translations[currentSystemLang];
             const entryDiv = document.createElement('div');
             entryDiv.className = `line-entry ${fontSize.value}`;
             entryDiv.innerHTML = `
                 <div class="font-semibold text-slate-800 dark:text-slate-200">${ru}</div>
-                <div class="translation text-slate-400 italic flex items-center gap-2"><span class="loading-translate"></span></div>
+                <div class="translation text-slate-400 italic flex items-center gap-2">
+                    <span class="loading-translate"></span> ${t.translating}
+                </div>
             `;
             entriesList.appendChild(entryDiv);
 
             if (!activeApiKey) {
-                entryDiv.querySelector('.translation').innerHTML = "<span class='text-amber-500'>API Key Tidak Ada</span>";
+                entryDiv.querySelector('.translation').innerHTML = `<span class='text-amber-500'>${t.apiWarning}</span>`;
                 return;
             }
 
             try {
-                const target = { 'id': 'Indonesian', 'en': 'English', 'zh': 'Chinese (Simplified)' }[document.getElementById('targetLang').value];
-                const tr = await translateAI(ru, target);
+                const targetCode = document.getElementById('targetLang').value;
+                const targetLabel = { 'id': 'Indonesian', 'en': 'English', 'zh': 'Chinese (Simplified)' }[targetCode];
+                const tr = await translateAI(ru, targetLabel);
                 const el = entryDiv.querySelector('.translation');
                 el.classList.replace('text-slate-400', 'text-blue-600');
                 el.classList.remove('italic');
                 el.innerText = tr;
-                fullTranscript.push({ ru, tr, target });
+                fullTranscript.push({ ru, tr, target: targetLabel });
             } catch (e) {
-                entryDiv.querySelector('.translation').innerText = "Gagal menerjemahkan";
+                entryDiv.querySelector('.translation').innerText = "Error";
             }
         }
 
@@ -313,7 +496,7 @@
 
         startBtn.onclick = () => {
             if (!activeApiKey) {
-                toggleModal('apiModal');
+                toggleModal('settingsModal');
                 return;
             }
             recognition.start();
@@ -321,21 +504,26 @@
         stopBtn.onclick = () => recognition.stop();
         clearBtn.onclick = () => { entriesList.innerHTML = ''; fullTranscript = []; };
         downloadBtn.onclick = () => {
-            let out = "TRANSKRIP KULIAH\n\n";
+            if (fullTranscript.length === 0) return;
+            let out = "TRANSCRIPT\n\n";
             fullTranscript.forEach(t => out += `RU: ${t.ru}\n${t.target}: ${t.tr}\n\n`);
             const b = new Blob([out], { type: 'text/plain' });
             const a = document.createElement('a');
             a.href = URL.createObjectURL(b);
-            a.download = `Transkrip_${Date.now()}.txt`;
+            a.download = `Transcript_${Date.now()}.txt`;
             a.click();
         };
 
-        function showError(m) {
-            const b = document.getElementById('errorBox');
-            document.getElementById('errorMsg').innerText = m;
-            b.classList.remove('translate-y-20', 'opacity-0');
-            setTimeout(() => b.classList.add('translate-y-20', 'opacity-0'), 5000);
-        }
+        fontSize.onchange = (e) => {
+            document.querySelectorAll('.line-entry').forEach(el => {
+                el.classList.remove('text-base', 'text-xl', 'text-3xl');
+                el.classList.add(e.target.value);
+            });
+        };
+
+        // --- INITIALIZE ---
+        updateUI();
+
     </script>
 </body>
 </html>
