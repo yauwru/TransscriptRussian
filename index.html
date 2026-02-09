@@ -106,12 +106,12 @@
             <div class="mb-6">
                 <label id="ui-apiKeyLabel" class="text-xs font-bold text-slate-500 uppercase mb-1 block">Kunci Akses</label>
                 <input type="password" id="apiKeyInput" placeholder="••••••••••••" class="w-full bg-slate-100 dark:bg-slate-800 border-none rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500 outline-none">
-                <p id="ui-apiHint" class="text-[10px] text-slate-400 mt-2">Kunci ini diberikan oleh pengelola aplikasi.</p>
+                <p id="ui-apiHint" class="text-[10px] text-slate-400 mt-2 font-medium">Kunci ini bersifat pribadi. Jika kuota habis, tunggu 1-2 menit.</p>
             </div>
 
             <div class="flex gap-2">
                 <button id="ui-saveBtn" onclick="saveSettings()" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl transition-all shadow-lg shadow-blue-500/20">Simpan</button>
-                <button id="ui-cancelBtn" onclick="toggleModal('settingsModal')" class="px-4 py-3 text-slate-500 font-medium">Batal</button>
+                <button id="ui-cancelBtn" onclick="toggleModal('settingsModal')" class="px-4 py-3 text-slate-500 font-medium text-sm">Batal</button>
             </div>
         </div>
     </div>
@@ -196,7 +196,7 @@
                 <div id="welcomeMessage" class="text-center py-24">
                     <h2 id="ui-welcomeTitle" class="text-2xl font-bold text-slate-800 dark:text-slate-100">Siap Mendengarkan</h2>
                     <p id="ui-welcomeDesc" class="text-slate-500 dark:text-slate-400 mt-2">Transkrip dan terjemahan otomatis akan muncul di sini baris demi baris.</p>
-                    <p id="apiWarning" class="text-amber-500 font-medium mt-4">Kunci Akses Belum Diatur! Hubungi pengelola untuk mendapatkan kunci.</p>
+                    <p id="apiWarning" class="text-amber-500 font-medium mt-4 italic">Kunci Akses Belum Diatur! Hubungi pengelola.</p>
                 </div>
                 <div id="entriesList"></div>
                 <div id="interimRow" class="mt-6 opacity-60 hidden">
@@ -224,7 +224,7 @@
                 settingsTitle: "Pengaturan",
                 systemLangLabel: "Bahasa Sistem",
                 apiKeyLabel: "Kunci Akses",
-                apiHint: "Kunci ini diberikan oleh pengelola aplikasi.",
+                apiHint: "Kunci ini bersifat pribadi. Jika kuota habis, tunggu 1-2 menit.",
                 saveBtn: "Simpan",
                 cancelBtn: "Batal",
                 liveLabel: "Mendengarkan",
@@ -239,19 +239,22 @@
                 downloadBtn: "Unduh",
                 welcomeTitle: "Siap Mendengarkan",
                 welcomeDesc: "Transkrip dan terjemahan otomatis akan muncul di sini baris demi baris.",
-                apiWarning: "Kunci Akses Belum Diatur! Hubungi pengelola untuk mendapatkan kunci.",
+                apiWarning: "Kunci Akses Belum Diatur! Hubungi pengelola.",
                 colOriginal: "Original (RU)",
                 colTranslation: "Terjemahan",
                 toastCopy: "Disalin!",
                 translating: "Menerjemahkan...",
-                errNoApi: "Kunci Akses belum diisi. Terjemahan tidak akan berfungsi."
+                errKeyBlocked: "Kunci Diblokir/Salah (403)",
+                errQuota: "Kuota Habis. Tunggu sebentar... (429)",
+                errGeneric: "Gagal Menerjemahkan",
+                errNoApi: "Kunci Akses belum diatur."
             },
             en: {
                 appTitle: "Russian Lecture Transcript",
                 settingsTitle: "Settings",
                 systemLangLabel: "System Language",
                 apiKeyLabel: "Access Key",
-                apiHint: "This key is provided by the app administrator.",
+                apiHint: "Keys are private. If quota fails, wait 1-2 mins.",
                 saveBtn: "Save",
                 cancelBtn: "Cancel",
                 liveLabel: "Live Listening",
@@ -266,19 +269,22 @@
                 downloadBtn: "Download",
                 welcomeTitle: "Ready to Listen",
                 welcomeDesc: "Automatic transcripts and translations will appear here line by line.",
-                apiWarning: "Access Key Not Set! Contact the administrator for a key.",
+                apiWarning: "Access Key Not Set! Contact admin.",
                 colOriginal: "Original (RU)",
                 colTranslation: "Translation",
                 toastCopy: "Copied!",
                 translating: "Translating...",
-                errNoApi: "Access Key not set. Translation will not work."
+                errKeyBlocked: "Key Blocked/Invalid (403)",
+                errQuota: "Quota Exceeded. Please wait... (429)",
+                errGeneric: "Translation Failed",
+                errNoApi: "Access Key not set."
             },
             ru: {
                 appTitle: "Транскрипт Лекции (RU)",
                 settingsTitle: "Настройки",
                 systemLangLabel: "Язык Системы",
                 apiKeyLabel: "Ключ доступа",
-                apiHint: "Этот ключ предоставляется администратором приложения.",
+                apiHint: "Ключи приватны. Если лимит исчерпан, подождите 1-2 мин.",
                 saveBtn: "Сохранить",
                 cancelBtn: "Отмена",
                 liveLabel: "Слушаем",
@@ -293,19 +299,22 @@
                 downloadBtn: "Скачать",
                 welcomeTitle: "Готов к прослушиванию",
                 welcomeDesc: "Автоматические транскрипты и переводы будут появляться здесь строка за строкой.",
-                apiWarning: "Ключ доступа не установлен! Свяжитесь с администратором.",
+                apiWarning: "Ключ доступа не установлен! Свяжитесь с админом.",
                 colOriginal: "Оригинал (RU)",
                 colTranslation: "Перевод",
                 toastCopy: "Скопировано!",
                 translating: "Перевод...",
-                errNoApi: "Ключ доступа не установлен. Перевод не будет работать."
+                errKeyBlocked: "Ключ заблокирован (403)",
+                errQuota: "Лимит исчерпан. Подождите... (429)",
+                errGeneric: "Ошибка перевода",
+                errNoApi: "Ключ не установлен."
             },
             zh: {
                 appTitle: "俄语讲座转录 Pro",
                 settingsTitle: "设置",
                 systemLangLabel: "系统语言",
                 apiKeyLabel: "访问密钥",
-                apiHint: "此密钥由应用程序管理员提供。",
+                apiHint: "密钥是私有的。如果配额失败，请等待1-2分钟。",
                 saveBtn: "保存",
                 cancelBtn: "取消",
                 liveLabel: "正在收听",
@@ -320,12 +329,15 @@
                 downloadBtn: "下载",
                 welcomeTitle: "准备就绪",
                 welcomeDesc: "自动转录和翻译将逐行显示在这里。",
-                apiWarning: "尚未设置访问密钥！请联系管理员获取密钥。",
+                apiWarning: "访问密钥未设置！请联系管理员。",
                 colOriginal: "原文 (俄语)",
                 colTranslation: "翻译",
                 toastCopy: "已复制！",
                 translating: "正在翻译...",
-                errNoApi: "尚未设置访问密钥。翻译功能将无法使用。"
+                errKeyBlocked: "密钥被封锁 (403)",
+                errQuota: "配额已满。请稍候... (429)",
+                errGeneric: "翻译失败",
+                errNoApi: "尚未设置密钥。"
             }
         };
 
@@ -462,7 +474,7 @@
             entriesList.appendChild(entryDiv);
 
             if (!activeApiKey) {
-                entryDiv.querySelector('.translation').innerHTML = `<span class='text-amber-500'>${t.apiWarning}</span>`;
+                entryDiv.querySelector('.translation').innerHTML = `<span class='text-amber-500'>${t.errNoApi}</span>`;
                 return;
             }
 
@@ -476,19 +488,37 @@
                 el.innerText = tr;
                 fullTranscript.push({ ru, tr, target: targetLabel });
             } catch (e) {
-                entryDiv.querySelector('.translation').innerText = "Error";
+                const el = entryDiv.querySelector('.translation');
+                el.classList.replace('text-slate-400', 'text-red-500');
+                el.innerText = e.message || t.errGeneric;
             }
         }
 
-        async function translateAI(text, target) {
-            const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${activeApiKey}`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ contents: [{ parts: [{ text: `Translate to ${target}: "${text}". Only output result.` }] }] })
-            });
-            if (!res.ok) throw new Error();
-            const d = await res.json();
-            return d.candidates[0].content.parts[0].text.trim();
+        async function translateAI(text, target, retryCount = 0) {
+            const t = translations[currentSystemLang];
+            try {
+                const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${activeApiKey}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ contents: [{ parts: [{ text: `Translate this Russian text to ${target}. Output only the translation: "${text}"` }] }] })
+                });
+                
+                if (!res.ok) {
+                    if (res.status === 403) throw new Error(t.errKeyBlocked);
+                    if (res.status === 429) throw new Error(t.errQuota);
+                    throw new Error(`${t.errGeneric} (${res.status})`);
+                }
+                
+                const d = await res.json();
+                return d.candidates[0].content.parts[0].text.trim();
+            } catch (e) {
+                // Jika terkena batas kuota (429), coba lagi 3 kali dengan jeda 2 detik
+                if (retryCount < 3 && e.message.includes('429')) {
+                    await new Promise(r => setTimeout(r, 2000));
+                    return translateAI(text, target, retryCount + 1);
+                }
+                throw e;
+            }
         }
 
         startBtn.onclick = () => {
