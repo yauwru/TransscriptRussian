@@ -102,20 +102,17 @@
                 </select>
             </div>
 
-            <!-- API Key -->
+            <!-- Kunci Akses -->
             <div class="mb-6">
-                <label id="ui-apiKeyLabel" class="text-xs font-bold text-slate-500 uppercase mb-1 block">Google Gemini API Key</label>
-                <input type="password" id="apiKeyInput" placeholder="AIzaSy..." class="w-full bg-slate-100 dark:bg-slate-800 border-none rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500 outline-none">
-                <p id="ui-apiHint" class="text-[10px] text-slate-400 mt-2">Kunci disimpan secara lokal di browser Anda.</p>
+                <label id="ui-apiKeyLabel" class="text-xs font-bold text-slate-500 uppercase mb-1 block">Kunci Akses</label>
+                <input type="password" id="apiKeyInput" placeholder="••••••••••••" class="w-full bg-slate-100 dark:bg-slate-800 border-none rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500 outline-none">
+                <p id="ui-apiHint" class="text-[10px] text-slate-400 mt-2">Kunci ini diberikan oleh pengelola aplikasi.</p>
             </div>
 
             <div class="flex gap-2">
                 <button id="ui-saveBtn" onclick="saveSettings()" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl transition-all shadow-lg shadow-blue-500/20">Simpan</button>
                 <button id="ui-cancelBtn" onclick="toggleModal('settingsModal')" class="px-4 py-3 text-slate-500 font-medium">Batal</button>
             </div>
-            <p class="text-[10px] mt-4 text-center text-slate-400">
-                <a href="https://aistudio.google.com/" target="_blank" class="underline text-blue-500">Google AI Studio</a>
-            </p>
         </div>
     </div>
 
@@ -199,7 +196,7 @@
                 <div id="welcomeMessage" class="text-center py-24">
                     <h2 id="ui-welcomeTitle" class="text-2xl font-bold text-slate-800 dark:text-slate-100">Siap Mendengarkan</h2>
                     <p id="ui-welcomeDesc" class="text-slate-500 dark:text-slate-400 mt-2">Transkrip dan terjemahan otomatis akan muncul di sini baris demi baris.</p>
-                    <p id="apiWarning" class="text-amber-500 font-medium mt-4">API Key Belum Diatur! Klik ikon gerigi di pojok kanan atas.</p>
+                    <p id="apiWarning" class="text-amber-500 font-medium mt-4">Kunci Akses Belum Diatur! Hubungi pengelola untuk mendapatkan kunci.</p>
                 </div>
                 <div id="entriesList"></div>
                 <div id="interimRow" class="mt-6 opacity-60 hidden">
@@ -226,8 +223,8 @@
                 appTitle: "Transkrip Kuliah Rusia",
                 settingsTitle: "Pengaturan",
                 systemLangLabel: "Bahasa Sistem",
-                apiKeyLabel: "Google Gemini API Key",
-                apiHint: "Kunci disimpan secara lokal di browser Anda.",
+                apiKeyLabel: "Kunci Akses",
+                apiHint: "Kunci ini diberikan oleh pengelola aplikasi.",
                 saveBtn: "Simpan",
                 cancelBtn: "Batal",
                 liveLabel: "Mendengarkan",
@@ -242,19 +239,19 @@
                 downloadBtn: "Unduh",
                 welcomeTitle: "Siap Mendengarkan",
                 welcomeDesc: "Transkrip dan terjemahan otomatis akan muncul di sini baris demi baris.",
-                apiWarning: "API Key Belum Diatur! Klik ikon gerigi di pojok kanan atas.",
+                apiWarning: "Kunci Akses Belum Diatur! Hubungi pengelola untuk mendapatkan kunci.",
                 colOriginal: "Original (RU)",
                 colTranslation: "Terjemahan",
                 toastCopy: "Disalin!",
                 translating: "Menerjemahkan...",
-                errNoApi: "API Key belum diisi. Terjemahan tidak akan berfungsi."
+                errNoApi: "Kunci Akses belum diisi. Terjemahan tidak akan berfungsi."
             },
             en: {
                 appTitle: "Russian Lecture Transcript",
                 settingsTitle: "Settings",
                 systemLangLabel: "System Language",
-                apiKeyLabel: "Google Gemini API Key",
-                apiHint: "Keys are stored locally in your browser.",
+                apiKeyLabel: "Access Key",
+                apiHint: "This key is provided by the app administrator.",
                 saveBtn: "Save",
                 cancelBtn: "Cancel",
                 liveLabel: "Live Listening",
@@ -269,19 +266,19 @@
                 downloadBtn: "Download",
                 welcomeTitle: "Ready to Listen",
                 welcomeDesc: "Automatic transcripts and translations will appear here line by line.",
-                apiWarning: "API Key Not Set! Click the gear icon at the top right.",
+                apiWarning: "Access Key Not Set! Contact the administrator for a key.",
                 colOriginal: "Original (RU)",
                 colTranslation: "Translation",
                 toastCopy: "Copied!",
                 translating: "Translating...",
-                errNoApi: "API Key not set. Translation will not work."
+                errNoApi: "Access Key not set. Translation will not work."
             },
             ru: {
                 appTitle: "Транскрипт Лекции (RU)",
                 settingsTitle: "Настройки",
                 systemLangLabel: "Язык Системы",
-                apiKeyLabel: "Google Gemini API Key",
-                apiHint: "Ключи сохраняются локально в вашем браузере.",
+                apiKeyLabel: "Ключ доступа",
+                apiHint: "Этот ключ предоставляется администратором приложения.",
                 saveBtn: "Сохранить",
                 cancelBtn: "Отмена",
                 liveLabel: "Слушаем",
@@ -296,19 +293,19 @@
                 downloadBtn: "Скачать",
                 welcomeTitle: "Готов к прослушиванию",
                 welcomeDesc: "Автоматические транскрипты и переводы будут появляться здесь строка за строкой.",
-                apiWarning: "API-ключ не установлен! Нажмите на иконку шестеренки.",
+                apiWarning: "Ключ доступа не установлен! Свяжитесь с администратором.",
                 colOriginal: "Оригинал (RU)",
                 colTranslation: "Перевод",
                 toastCopy: "Скопировано!",
                 translating: "Перевод...",
-                errNoApi: "API-ключ не установлен. Перевод не будет работать."
+                errNoApi: "Ключ доступа не установлен. Перевод не будет работать."
             },
             zh: {
                 appTitle: "俄语讲座转录 Pro",
                 settingsTitle: "设置",
                 systemLangLabel: "系统语言",
-                apiKeyLabel: "Google Gemini API Key",
-                apiHint: "密钥存储在您的浏览器本地。",
+                apiKeyLabel: "访问密钥",
+                apiHint: "此密钥由应用程序管理员提供。",
                 saveBtn: "保存",
                 cancelBtn: "取消",
                 liveLabel: "正在收听",
@@ -323,12 +320,12 @@
                 downloadBtn: "下载",
                 welcomeTitle: "准备就绪",
                 welcomeDesc: "自动转录和翻译将逐行显示在这里。",
-                apiWarning: "尚未设置 API 密钥！点击右上角的齿轮图标。",
+                apiWarning: "尚未设置访问密钥！请联系管理员获取密钥。",
                 colOriginal: "原文 (俄语)",
                 colTranslation: "翻译",
                 toastCopy: "已复制！",
                 translating: "正在翻译...",
-                errNoApi: "尚未设置 API 密钥。翻译功能将无法使用。"
+                errNoApi: "尚未设置访问密钥。翻译功能将无法使用。"
             }
         };
 
