@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Russian Transcriptor</title>
+    <title>Transkriptor Kuliah Rusia Pro</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -43,11 +43,6 @@
                 grid-template-columns: 1fr;
                 gap: 0.5rem;
             }
-            .copy-btn-wrapper {
-                position: absolute;
-                top: 0.5rem;
-                right: 0.5rem;
-            }
         }
 
         .listening-dot {
@@ -82,56 +77,78 @@
             width: 60px;
             height: 20px;
         }
+
+        .modal-backdrop {
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(4px);
+        }
     </style>
 </head>
-<body class="min-h-screen flex flex-col bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100">
+<body class="min-h-screen flex flex-col bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 font-sans">
+    
+    <!-- Modal Pengaturan API -->
+    <div id="apiModal" class="fixed inset-0 z-[100] hidden flex items-center justify-center p-4 modal-backdrop">
+        <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl w-full max-w-md p-6 border border-slate-200 dark:border-slate-800">
+            <h3 class="text-xl font-bold mb-2">Pengaturan API Key</h3>
+            <p class="text-sm text-slate-500 mb-4">Masukkan Google Gemini API Key Anda. Kunci ini hanya disimpan di browser Anda (lokal) dan tidak dikirim ke server mana pun.</p>
+            <input type="password" id="apiKeyInput" placeholder="Masukkan AIzaSy..." class="w-full bg-slate-100 dark:bg-slate-800 border-none rounded-xl px-4 py-3 mb-4 focus:ring-2 focus:ring-blue-500 outline-none">
+            <div class="flex gap-2">
+                <button onclick="saveApiKey()" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl transition-all">Simpan</button>
+                <button onclick="toggleModal('apiModal')" class="px-4 py-3 text-slate-500 font-medium">Batal</button>
+            </div>
+            <p class="text-[10px] mt-4 text-center text-slate-400">Dapatkan kunci gratis di <a href="https://aistudio.google.com/" target="_blank" class="underline text-blue-500">Google AI Studio</a></p>
+        </div>
+    </div>
+
     <!-- Header -->
     <header class="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 p-4 shadow-sm sticky top-0 z-50">
         <div class="max-w-6xl mx-auto flex flex-wrap justify-between items-center gap-4">
             <div class="flex items-center gap-3">
-                <div class="bg-blue-600 p-2 rounded-xl shadow-lg shadow-blue-500/20 text-white">
+                <div class="bg-blue-600 p-2 rounded-xl text-white">
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" x2="12" y1="19" y2="22"/></svg>
                 </div>
                 <div>
-                    <h1 class="text-xl font-bold leading-tight">Russian Transcriptor 1.0</h1>
+                    <h1 class="text-xl font-bold leading-tight">Transkrip Kuliah Rusia</h1>
                     <div class="flex items-center gap-2">
                         <canvas id="visualizer"></canvas>
-                        <p class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Audio Feed</p>
                     </div>
                 </div>
             </div>
 
-            <div class="flex items-center gap-4">
-                <button id="themeToggle" class="p-2 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors">
-                    <svg id="sunIcon" class="hidden dark:block" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>
+            <div class="flex items-center gap-2">
+                <button onclick="toggleModal('apiModal')" class="p-2 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 text-slate-600 dark:text-slate-300" title="Set API Key">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
+                </button>
+                <button id="themeToggle" class="p-2 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 transition-colors">
+                    <svg id="sunIcon" class="hidden dark:block" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="M2 12h2"/><path d="M20 12h2"/></svg>
                     <svg id="moonIcon" class="block dark:hidden" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
                 </button>
                 <div id="statusBadge" class="hidden items-center bg-blue-50 dark:bg-blue-900/20 px-3 py-1.5 rounded-full border border-blue-200 dark:border-blue-800">
                     <span class="listening-dot mr-2"></span>
-                    <span class="text-[10px] font-bold tracking-wider uppercase text-blue-600 dark:text-blue-400">Live Listening</span>
+                    <span class="text-[10px] font-bold tracking-wider uppercase text-blue-600 dark:text-blue-400">Live</span>
                 </div>
             </div>
         </div>
     </header>
 
-    <!-- Control Bar -->
+    <!-- Bar Kontrol -->
     <nav class="bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 p-4 sticky top-[73px] z-40">
         <div class="max-w-6xl mx-auto flex flex-wrap items-center gap-6">
             <div class="flex flex-col">
-                <label class="text-[10px] font-bold text-slate-500 uppercase mb-1">Translate to:</label>
-                <select id="targetLang" class="bg-slate-100 dark:bg-slate-800 border-none rounded-lg px-3 py-2 text-sm font-semibold focus:ring-2 focus:ring-blue-500 outline-none">
-                    <option value="id">Bahasa Indonesia</option>
-                    <option value="en">English (UK/US)</option>
-                    <option value="zh">Chinese (Simplified)</option>
+                <label class="text-[10px] font-bold text-slate-500 uppercase mb-1">Target Bahasa:</label>
+                <select id="targetLang" class="bg-slate-100 dark:bg-slate-800 rounded-lg px-3 py-2 text-sm font-semibold outline-none border-none">
+                    <option value="id">Indonesia</option>
+                    <option value="en">Inggris</option>
+                    <option value="zh">Mandarin</option>
                 </select>
             </div>
 
             <div class="flex flex-col">
-                <label class="text-[10px] font-bold text-slate-500 uppercase mb-1">Text size:</label>
-                <select id="fontSize" class="bg-slate-100 dark:bg-slate-800 border-none rounded-lg px-3 py-2 text-sm font-semibold focus:ring-2 focus:ring-blue-500 outline-none">
-                    <option value="text-base">Small</option>
-                    <option value="text-xl" selected>Medium</option>
-                    <option value="text-3xl">Big</option>
+                <label class="text-[10px] font-bold text-slate-500 uppercase mb-1">Ukuran Teks:</label>
+                <select id="fontSize" class="bg-slate-100 dark:bg-slate-800 rounded-lg px-3 py-2 text-sm font-semibold outline-none border-none">
+                    <option value="text-base">Kecil</option>
+                    <option value="text-xl" selected>Besar</option>
+                    <option value="text-3xl">Sangat Besar</option>
                 </select>
             </div>
 
@@ -141,42 +158,23 @@
             </div>
 
             <div class="flex items-center gap-2 ml-auto">
-                <button id="startBtn" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-bold transition-all shadow-lg shadow-blue-500/30 active:scale-95">
-                    Start
-                </button>
-                <button id="stopBtn" class="bg-red-500 hover:bg-red-600 text-white px-6 py-2 rounded-lg font-bold transition-all shadow-lg shadow-red-500/30 active:scale-95 hidden">
-                    Stop
-                </button>
-                <button id="downloadBtn" class="bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 px-6 py-2 rounded-lg font-bold transition-all">
-                    Download
-                </button>
-                <button id="clearBtn" class="p-2 text-slate-400 hover:text-red-500 transition-all" title="Bersihkan Layar">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></svg>
-                </button>
+                <button id="startBtn" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-bold shadow-lg shadow-blue-500/30">Mulai</button>
+                <button id="stopBtn" class="bg-red-500 hover:bg-red-600 text-white px-6 py-2 rounded-lg font-bold shadow-lg shadow-red-500/30 hidden">Berhenti</button>
+                <button id="downloadBtn" class="bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 px-6 py-2 rounded-lg font-bold">Unduh</button>
+                <button id="clearBtn" class="p-2 text-slate-400 hover:text-red-500"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg></button>
             </div>
         </div>
     </nav>
 
-    <!-- Main Content -->
+    <!-- Area Transkrip -->
     <main class="flex-grow max-w-6xl w-full mx-auto p-4 md:p-6">
         <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden flex flex-col h-full min-h-[70vh]">
-            <div class="grid grid-cols-2 gap-4 p-4 border-b dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50 text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-                <div>Original (RU)</div>
-                <div>Translation</div>
-            </div>
-
             <div id="transcriptContainer" class="flex-grow p-4 md:p-8 scroll-custom overflow-y-auto max-h-[60vh]">
                 <div id="welcomeMessage" class="text-center py-24">
-                    <div class="bg-blue-100 dark:bg-blue-900/30 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6 text-blue-600 dark:text-blue-400">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 8 6 6 6-6"/></svg>
-                    </div>
-                    <h2 class="text-2xl font-bold text-slate-800 dark:text-slate-100">Ready to listen</h2>
-                    <p class="text-slate-500 dark:text-slate-400 max-w-sm mx-auto mt-3">Transcript and the translations will automaticly shows up each line.</p>
+                    <h2 class="text-2xl font-bold text-slate-800 dark:text-slate-100">Siap Mendengarkan</h2>
+                    <p id="apiWarning" class="text-amber-500 font-medium mt-2">API Key Belum Diatur! Klik ikon gerigi di pojok kanan atas.</p>
                 </div>
-                
                 <div id="entriesList"></div>
-                
-                <!-- Interim Result -->
                 <div id="interimRow" class="mt-6 opacity-60 hidden">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div id="interimRussian" class="italic font-medium text-slate-400"></div>
@@ -187,27 +185,41 @@
         </div>
     </main>
 
-    <!-- Toast for Copy Notification -->
-    <div id="toast" class="fixed bottom-8 left-1/2 -translate-x-1/2 bg-slate-800 text-white px-4 py-2 rounded-lg text-sm font-medium shadow-xl opacity-0 transition-opacity pointer-events-none">
-        Copied!
+    <div id="toast" class="fixed bottom-8 left-1/2 -translate-x-1/2 bg-slate-800 text-white px-4 py-2 rounded-lg text-sm font-medium shadow-xl opacity-0 transition-opacity pointer-events-none">Disalin!</div>
+    <div id="errorBox" class="fixed bottom-6 right-6 bg-red-600 text-white px-6 py-4 rounded-xl shadow-2xl transition-all translate-y-20 opacity-0 pointer-events-none max-w-md">
+        <p class="font-bold">Error</p>
+        <p id="errorMsg" class="text-sm opacity-90"></p>
     </div>
-
-    <!-- Error Box -->
-    <div id="errorBox" class="fixed bottom-6 right-6 bg-red-600 text-white px-6 py-4 rounded-xl shadow-2xl transition-all translate-y-20 opacity-0 pointer-events-none max-w-md flex items-start gap-3">
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></svg>
-        <div>
-            <p class="font-bold">Error</p>
-            <p id="errorMsg" class="text-sm opacity-90"></p>
-        </div>
-    </div>
-
-    <!-- Hidden textarea for copying -->
-    <textarea id="copyBuffer" class="fixed -top-full opacity-0 pointer-events-none"></textarea>
 
     <script>
-        const apiKey = ""; 
+        // API Key sekarang diambil dari localStorage
+        let activeApiKey = localStorage.getItem('gemini_api_key') || "";
         const model = "gemini-2.5-flash-preview-09-2025";
 
+        const apiModal = document.getElementById('apiModal');
+        const apiKeyInput = document.getElementById('apiKeyInput');
+        const apiWarning = document.getElementById('apiWarning');
+
+        // Fungsi Modal
+        function toggleModal(id) {
+            const modal = document.getElementById(id);
+            modal.classList.toggle('hidden');
+            if (!modal.classList.contains('hidden')) apiKeyInput.value = activeApiKey;
+        }
+
+        function saveApiKey() {
+            const key = apiKeyInput.value.trim();
+            if (key) {
+                localStorage.setItem('gemini_api_key', key);
+                activeApiKey = key;
+                apiWarning.classList.add('hidden');
+                toggleModal('apiModal');
+            }
+        }
+
+        if (activeApiKey) apiWarning.classList.add('hidden');
+
+        // Speech & Logic (sama seperti sebelumnya tapi menggunakan activeApiKey)
         const startBtn = document.getElementById('startBtn');
         const stopBtn = document.getElementById('stopBtn');
         const clearBtn = document.getElementById('clearBtn');
@@ -216,56 +228,15 @@
         const entriesList = document.getElementById('entriesList');
         const interimRow = document.getElementById('interimRow');
         const interimRussian = document.getElementById('interimRussian');
-        const targetLang = document.getElementById('targetLang');
-        const fontSize = document.getElementById('fontSize');
-        const autoScroll = document.getElementById('autoScroll');
-        const welcomeMessage = document.getElementById('welcomeMessage');
-        const statusBadge = document.getElementById('statusBadge');
         const transcriptContainer = document.getElementById('transcriptContainer');
-        const toast = document.getElementById('toast');
-        const copyBuffer = document.getElementById('copyBuffer');
-        const visualizerCanvas = document.getElementById('visualizer');
+        const autoScroll = document.getElementById('autoScroll');
+        const fontSize = document.getElementById('fontSize');
 
         let recognition;
         let fullTranscript = [];
-        let audioContext, analyser, dataArray, source;
 
-        // --- THEME MANAGEMENT ---
-        themeToggle.onclick = () => {
-            document.documentElement.classList.toggle('dark');
-        };
+        themeToggle.onclick = () => document.documentElement.classList.toggle('dark');
 
-        // --- VISUALIZER SETUP ---
-        async function setupVisualizer() {
-            try {
-                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-                audioContext = new (window.AudioContext || window.webkitAudioContext)();
-                analyser = audioContext.createAnalyser();
-                source = audioContext.createMediaStreamSource(stream);
-                source.connect(analyser);
-                analyser.fftSize = 32;
-                const bufferLength = analyser.frequencyBinCount;
-                dataArray = new Uint8Array(bufferLength);
-                drawVisualizer();
-            } catch (e) { console.log("Visualizer blocked or no mic"); }
-        }
-
-        function drawVisualizer() {
-            requestAnimationFrame(drawVisualizer);
-            const ctx = visualizerCanvas.getContext('2d');
-            analyser.getByteFrequencyData(dataArray);
-            ctx.clearRect(0, 0, visualizerCanvas.width, visualizerCanvas.height);
-            const barWidth = 4;
-            let x = 0;
-            for(let i = 0; i < dataArray.length; i++) {
-                const barHeight = (dataArray[i] / 255) * visualizerCanvas.height;
-                ctx.fillStyle = document.documentElement.classList.contains('dark') ? '#3b82f6' : '#2563eb';
-                ctx.fillRect(x, visualizerCanvas.height - barHeight, barWidth, barHeight);
-                x += barWidth + 2;
-            }
-        }
-
-        // --- SPEECH RECOGNITION ---
         if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
             const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
             recognition = new SpeechRecognition();
@@ -276,112 +247,87 @@
             recognition.onstart = () => {
                 startBtn.classList.add('hidden');
                 stopBtn.classList.remove('hidden');
-                statusBadge.classList.replace('hidden', 'flex');
-                welcomeMessage.classList.add('hidden');
+                document.getElementById('statusBadge').classList.remove('hidden');
+                document.getElementById('welcomeMessage').classList.add('hidden');
                 interimRow.classList.remove('hidden');
-                if(!audioContext) setupVisualizer();
             };
 
             recognition.onresult = async (event) => {
-                let currentInterim = '';
+                let interim = '';
                 for (let i = event.resultIndex; i < event.results.length; ++i) {
-                    const transcript = event.results[i][0].transcript;
                     if (event.results[i].isFinal) {
-                        handleFinalTranscript(transcript.trim());
+                        handleFinal(event.results[i][0].transcript.trim());
                     } else {
-                        currentInterim += transcript;
+                        interim += event.results[i][0].transcript;
                     }
                 }
-                interimRussian.innerText = currentInterim;
+                interimRussian.innerText = interim;
                 if(autoScroll.checked) transcriptContainer.scrollTop = transcriptContainer.scrollHeight;
             };
 
-            recognition.onerror = (e) => showError(`Mic error: ${e.error}`);
             recognition.onend = () => {
                 startBtn.classList.remove('hidden');
                 stopBtn.classList.add('hidden');
-                statusBadge.classList.replace('flex', 'hidden');
-                interimRow.classList.add('hidden');
+                document.getElementById('statusBadge').classList.add('hidden');
             };
         }
 
-        async function handleFinalTranscript(ru) {
+        async function handleFinal(ru) {
             if (!ru) return;
-            const entryId = Date.now();
             const entryDiv = document.createElement('div');
-            entryDiv.className = `line-entry ${fontSize.value} group`;
+            entryDiv.className = `line-entry ${fontSize.value}`;
             entryDiv.innerHTML = `
-                <div class="russian-text font-semibold text-slate-800 dark:text-slate-200">${ru}</div>
-                <div class="translation-text text-slate-400 italic flex items-center gap-2">
-                    <span class="loading-translate"></span>
-                </div>
-                <div class="copy-btn-wrapper flex justify-end">
-                    <button onclick="copyLine('${ru}', this)" class="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 transition-all opacity-0 group-hover:opacity-100">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
-                    </button>
-                </div>
+                <div class="font-semibold text-slate-800 dark:text-slate-200">${ru}</div>
+                <div class="translation text-slate-400 italic flex items-center gap-2"><span class="loading-translate"></span></div>
             `;
             entriesList.appendChild(entryDiv);
-            if(autoScroll.checked) transcriptContainer.scrollTop = transcriptContainer.scrollHeight;
 
-            const target = { 'id': 'Indonesian', 'en': 'English', 'zh': 'Chinese (Simplified)' }[targetLang.value];
+            if (!activeApiKey) {
+                entryDiv.querySelector('.translation').innerHTML = "<span class='text-amber-500'>API Key Tidak Ada</span>";
+                return;
+            }
+
             try {
+                const target = { 'id': 'Indonesian', 'en': 'English', 'zh': 'Chinese (Simplified)' }[document.getElementById('targetLang').value];
                 const tr = await translateAI(ru, target);
-                const el = entryDiv.querySelector('.translation-text');
-                el.classList.remove('italic', 'text-slate-400');
-                el.classList.add('text-blue-600', 'dark:text-blue-400', 'font-medium');
-                el.innerHTML = tr;
-                fullTranscript.push({ ru, tr, lang: target });
-            } catch (err) {
-                entryDiv.querySelector('.translation-text').innerHTML = "<span class='text-red-400'>Translation Failed</span>";
-            }
-        }
-
-        async function translateAI(text, target, retry = 0) {
-            const prompt = `Translate to ${target}: "${text}". Only output translated text.`;
-            try {
-                const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
-                });
-                if (!res.ok) throw new Error();
-                const d = await res.json();
-                return d.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || "---";
+                const el = entryDiv.querySelector('.translation');
+                el.classList.replace('text-slate-400', 'text-blue-600');
+                el.classList.remove('italic');
+                el.innerText = tr;
+                fullTranscript.push({ ru, tr, target });
             } catch (e) {
-                if (retry < 3) return translateAI(text, target, retry + 1);
-                throw e;
+                entryDiv.querySelector('.translation').innerText = "Gagal menerjemahkan";
             }
         }
 
-        window.copyLine = (text, btn) => {
-            copyBuffer.value = text;
-            copyBuffer.select();
-            document.execCommand('copy');
-            toast.classList.replace('opacity-0', 'opacity-100');
-            setTimeout(() => toast.classList.replace('opacity-100', 'opacity-0'), 2000);
-        };
-
-        downloadBtn.onclick = () => {
-            if(!fullTranscript.length) return showError("No transcript yet.");
-            let out = `KULIAH RUSIA - ${new Date().toLocaleDateString()}\n\n`;
-            fullTranscript.forEach((t, i) => out += `[${i+1}] RU: ${t.ru}\n    ${t.lang}: ${t.tr}\n\n`);
-            const b = new Blob([out], { type: 'text/plain' });
-            const url = URL.createObjectURL(b);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `Transcript_Russia_${Date.now()}.txt`;
-            a.click();
-        };
-
-        startBtn.onclick = () => recognition.start();
-        stopBtn.onclick = () => recognition.stop();
-        clearBtn.onclick = () => { entriesList.innerHTML = ''; fullTranscript = []; welcomeMessage.classList.remove('hidden'); };
-        fontSize.onchange = (e) => {
-            document.querySelectorAll('.line-entry').forEach(el => {
-                el.classList.remove('text-base', 'text-xl', 'text-3xl');
-                el.classList.add(e.target.value);
+        async function translateAI(text, target) {
+            const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${activeApiKey}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ contents: [{ parts: [{ text: `Translate to ${target}: "${text}". Only output result.` }] }] })
             });
+            if (!res.ok) throw new Error();
+            const d = await res.json();
+            return d.candidates[0].content.parts[0].text.trim();
+        }
+
+        startBtn.onclick = () => {
+            if (!activeApiKey) {
+                toggleModal('apiModal');
+                return;
+            }
+            recognition.start();
+        }
+        stopBtn.onclick = () => recognition.stop();
+        clearBtn.onclick = () => { entriesList.innerHTML = ''; fullTranscript = []; };
+        downloadBtn.onclick = () => {
+            let out = "TRANSKRIP KULIAH\n\n";
+            fullTranscript.forEach(t => out += `RU: ${t.ru}\n${t.target}: ${t.tr}\n\n`);
+            const b = new Blob([out], { type: 'text/plain' });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(b);
+            a.download = `Transkrip_${Date.now()}.txt`;
+            a.click();
         };
 
         function showError(m) {
